@@ -1,0 +1,79 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>言いたいことも言えないこんな世の中にゃ</title>
+  <!-- TailwindCSS CDN -->
+  <script src="https://cdn.tailwindcss.com"></script>
+  <!-- OGP -->
+  <meta property="og:title" content="ネコ語メーカー - にゃーん.jp" />
+  <meta property="og:description" content="人間語じゃ言えないことをネコ語にして、こっそり世界に発信するにゃ〜 🐾" />
+  <meta property="og:image" content="https://にゃーん.jp/ogp.png" />
+  <meta property="og:url" content="https://にゃーん.jp/" />
+  <meta property="og:type" content="website" />
+  <meta name="twitter:card" content="summary_large_image" />
+  <meta name="twitter:title" content="ネコ語メーカー - にゃーん.jp" />
+  <meta name="twitter:description" content="言いたいことも言えないこんな世の中にゃ。" />
+  <meta name="twitter:image" content="https://にゃーん.jp/ogp.png" />
+</head>
+<body class="min-h-screen bg-gray-50 flex flex-col items-center p-6">
+  <h1 class="text-3xl font-bold mb-6">🐾 言いたいことも言えないこんな世の中にゃ 🐾</h1>
+
+  <div class="w-full max-w-xl space-y-4">
+    <!-- 入力エリア -->
+    <label for="src" class="block font-medium">人間語じゃ言えないこと:</label>
+    <textarea id="src" class="w-full p-3 border rounded-lg shadow-sm focus:outline-none focus:ring" rows="6" placeholder="ここに秘密テキストを入力"></textarea>
+
+    <!-- 変換ボタン -->
+    <button id="convert" class="px-4 py-2 rounded-lg bg-indigo-500 text-white shadow hover:bg-indigo-600 transition flex items-center gap-2 justify-center">
+      🐾 <span>ネコ語に変換</span> 🐾
+    </button>
+
+    <!-- 出力エリア -->
+    <label for="dst" class="block font-medium">変換結果:</label>
+    <textarea id="dst" class="w-full p-3 border rounded-lg shadow-sm bg-gray-100" rows="6" readonly></textarea>
+
+    <!-- ツイートボタン -->
+    <a id="tweet" href="#" target="_blank" class="block text-center px-4 py-2 rounded-lg border shadow pointer-events-none opacity-40 bg-sky-500 text-white flex items-center gap-2 justify-center">
+      🐾 <span>ネコ語でついーとする</span> 🐾
+    </a>
+
+    <p class="text-xs text-gray-500">※ ツイートは公開されます。猫語でも内容の機密性は保証されません。</p>
+  </div>
+
+  <script>
+    const catUnits = ["にゃ", "にゃー", "にゃん", "にゃ〜", "にゃにゃ", "にゃーん"];
+    function randomCat() {
+      return catUnits[Math.floor(Math.random() * catUnits.length)];
+    }
+
+    function catifyLine(line) {
+      const punctuationMatch = line.match(/[。！!？?]$/);
+      const punctuation = punctuationMatch ? punctuationMatch[0] : "";
+      const coreLen = line.replace(/[^\p{L}\p{N}]/gu, "").length || 1;
+      let out = "";
+      while (out.length < coreLen) {
+        out += randomCat();
+      }
+      return out + punctuation;
+    }
+
+    function toCat(text) {
+      return text.split("\n").map(catifyLine).join("\n");
+    }
+
+    document.getElementById('convert').addEventListener('click', () => {
+      const src = document.getElementById('src').value;
+      const cat = toCat(src);
+      const dst = document.getElementById('dst');
+      dst.value = cat;
+
+      const tweetText = cat + "\n\nhttps://にゃーん.jp";
+      const tweetBtn = document.getElementById('tweet');
+      tweetBtn.href = 'https://twitter.com/intent/tweet?text=' + encodeURIComponent(tweetText);
+      tweetBtn.classList.remove('pointer-events-none', 'opacity-40');
+    });
+  </script>
+</body>
+</html>
