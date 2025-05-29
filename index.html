@@ -70,7 +70,7 @@
       const dst = document.getElementById('dst');
       dst.value = cat;
 
-      const tweetText = cat + "\n\n#なんだネコか https://にゃーん.jp";
+      const tweetText = cat + "\n\n#なんだネコか #言えないことをネコ語で吐く https://にゃーん.jp";
       const tweetBtn = document.getElementById('tweet');
       tweetBtn.href = 'https://twitter.com/intent/tweet?text=' + encodeURIComponent(tweetText);
       tweetBtn.classList.remove('pointer-events-none', 'opacity-40');
