@@ -36,7 +36,7 @@
 
     <!-- ツイートボタン -->
     <a id="tweet" href="#" target="_blank" class="block text-center px-4 py-2 rounded-lg border shadow pointer-events-none opacity-40 bg-sky-500 text-white flex items-center gap-2 justify-center">
-      🐾 <span>ネコ語でついーとする</span> 🐾
+      🐾 <span>ネコ語でツイートする</span> 🐾
     </a>
 
     <p class="text-xs text-gray-500">※ ツイートは公開されます。猫語でも内容の機密性は保証されません。</p>
@@ -69,7 +69,7 @@
       const dst = document.getElementById('dst');
       dst.value = cat;
 
-      const tweetText = cat + "\n\nhttps://にゃーん.jp";
+      const tweetText = cat + "\n\n#なんだネコか https://にゃーん.jp";
       const tweetBtn = document.getElementById('tweet');
       tweetBtn.href = 'https://twitter.com/intent/tweet?text=' + encodeURIComponent(tweetText);
       tweetBtn.classList.remove('pointer-events-none', 'opacity-40');
