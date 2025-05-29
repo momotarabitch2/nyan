@@ -6,6 +6,16 @@
   <title>言いたいことも言えないこんな世の中にゃ</title>
   <!-- TailwindCSS CDN -->
   <script src="https://cdn.tailwindcss.com"></script>
+  <!-- OGP -->
+  <meta property="og:title" content="ネコ語メーカー - にゃーん.jp" />
+  <meta property="og:description" content="人間語じゃ言えないことをネコ語にして、こっそり世界に発信するにゃ〜 🐾" />
+  <meta property="og:image" content="https://にゃーん.jp/ogp.png" />
+  <meta property="og:url" content="https://にゃーん.jp/" />
+  <meta property="og:type" content="website" />
+  <meta name="twitter:card" content="summary_large_image" />
+  <meta name="twitter:title" content="ネコ語メーカー - にゃーん.jp" />
+  <meta name="twitter:description" content="言いたいことも言えないこんな世の中にゃ。" />
+  <meta name="twitter:image" content="https://にゃーん.jp/ogp.png" />
 </head>
 <body class="min-h-screen bg-gray-50 flex flex-col items-center p-6">
   <h1 class="text-3xl font-bold mb-6">🐾 言いたいことも言えないこんな世の中にゃ 🐾</h1>
@@ -33,18 +43,15 @@
   </div>
 
   <script>
-    // 猫語ユニット候補
     const catUnits = ["にゃ", "にゃー", "にゃん", "にゃ〜", "にゃにゃ", "にゃーん"];
     function randomCat() {
       return catUnits[Math.floor(Math.random() * catUnits.length)];
     }
 
-    // 1 行を同等文字数レベルの猫語へ変換
     function catifyLine(line) {
       const punctuationMatch = line.match(/[。！!？?]$/);
       const punctuation = punctuationMatch ? punctuationMatch[0] : "";
-      // 句読点・空白を除いた文字数をターゲット長さとみなす
-      const coreLen = line.replace(/[^\p{L}\p{N}]/gu, "").length || 1; // 0 を避ける (Unicode-aware)
+      const coreLen = line.replace(/[^\p{L}\p{N}]/gu, "").length || 1;
       let out = "";
       while (out.length < coreLen) {
         out += randomCat();
@@ -56,16 +63,13 @@
       return text.split("\n").map(catifyLine).join("\n");
     }
 
-    // UI イベント
     document.getElementById('convert').addEventListener('click', () => {
       const src = document.getElementById('src').value;
       const cat = toCat(src);
       const dst = document.getElementById('dst');
       dst.value = cat;
 
-      // ツイートリンク更新
-      const hashtag = "\n\n#なんだネコか にゃーん.jp";
-      const tweetText = cat + hashtag;
+      const tweetText = cat + "\n\nhttps://にゃーん.jp";
       const tweetBtn = document.getElementById('tweet');
       tweetBtn.href = 'https://twitter.com/intent/tweet?text=' + encodeURIComponent(tweetText);
       tweetBtn.classList.remove('pointer-events-none', 'opacity-40');
