@@ -1,0 +1,1050 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>節分鬼退治 - 自分の中の鬼を倒せ！ | にゃーん.jp</title>
+  <script src="https://cdn.tailwindcss.com"></script>
+
+  <!-- OGP -->
+  <meta property="og:title" content="節分鬼退治 - 自分の中の鬼を倒せ！" />
+  <meta property="og:description" content="あなたの中のやっつけたい鬼を退治しよう！豆をぶつけて鬼退治！" />
+  <meta property="og:url" content="https://にゃーん.jp/setsubun.html" />
+  <meta property="og:type" content="website" />
+  <meta property="og:image" content="https://にゃーん.jp/ogp-setsubun.png" />
+  <meta name="twitter:card" content="summary_large_image" />
+  <meta name="twitter:title" content="節分鬼退治 - 自分の中の鬼を倒せ！" />
+  <meta name="twitter:description" content="あなたの中のやっつけたい鬼を退治しよう！豆をぶつけて鬼退治！" />
+  <meta name="twitter:image" content="https://にゃーん.jp/ogp-setsubun.png" />
+
+  <style>
+    @import url('https://fonts.googleapis.com/css2?family=Noto+Sans+JP:wght@400;700;900&display=swap');
+    body { font-family: 'Noto Sans JP', sans-serif; }
+
+    .screen { transition: opacity 0.5s ease; }
+    .screen.hidden { display: none; }
+    .screen.fade-out { opacity: 0; }
+
+    @keyframes float {
+      0%, 100% { transform: translateY(0); }
+      50% { transform: translateY(-10px); }
+    }
+    .float-anim { animation: float 3s ease-in-out infinite; }
+
+    @keyframes shake {
+      0%, 100% { transform: translate(0, 0) rotate(0deg); }
+      10% { transform: translate(-8px, -4px) rotate(-2deg); }
+      20% { transform: translate(8px, 2px) rotate(2deg); }
+      30% { transform: translate(-6px, 4px) rotate(-1deg); }
+      40% { transform: translate(6px, -2px) rotate(1deg); }
+      50% { transform: translate(-4px, 2px) rotate(-2deg); }
+      60% { transform: translate(4px, -4px) rotate(2deg); }
+      70% { transform: translate(-8px, 0px) rotate(-1deg); }
+      80% { transform: translate(8px, 4px) rotate(1deg); }
+      90% { transform: translate(-4px, -2px) rotate(0deg); }
+    }
+    .shake { animation: shake 0.5s ease-in-out; }
+
+    @keyframes beanFly {
+      0% { transform: translate(0, 0) scale(1) rotate(0deg); opacity: 1; }
+      80% { transform: translate(var(--tx), var(--ty)) scale(0.8) rotate(360deg); opacity: 1; }
+      100% { transform: translate(var(--tx), var(--ty)) scale(0) rotate(540deg); opacity: 0; }
+    }
+    .bean {
+      position: absolute;
+      width: 18px;
+      height: 18px;
+      border-radius: 50% 50% 50% 40%;
+      pointer-events: none;
+      z-index: 50;
+    }
+    .bean.thrown {
+      animation: beanFly var(--duration) ease-in forwards;
+      animation-delay: var(--delay);
+    }
+
+    @keyframes defeat {
+      0% { transform: scale(1) rotate(0deg); opacity: 1; }
+      30% { transform: scale(1.1) rotate(-5deg); opacity: 1; }
+      60% { transform: scale(0.8) rotate(10deg); opacity: 0.8; }
+      100% { transform: scale(0) rotate(720deg); opacity: 0; }
+    }
+    .defeat { animation: defeat 1s ease-in forwards; }
+
+    @keyframes flashBang {
+      0% { opacity: 0; }
+      50% { opacity: 1; }
+      100% { opacity: 0; }
+    }
+    .flash { animation: flashBang 0.4s ease-out forwards; }
+
+    @keyframes confettiFall {
+      0% { transform: translateY(-10px) rotate(0deg); opacity: 1; }
+      100% { transform: translateY(100vh) rotate(720deg); opacity: 0; }
+    }
+    .confetti-piece {
+      position: fixed;
+      width: 10px;
+      height: 10px;
+      top: -10px;
+      z-index: 100;
+      pointer-events: none;
+      animation: confettiFall var(--fall-duration) linear forwards;
+      animation-delay: var(--fall-delay);
+    }
+
+    @keyframes pulseGlow {
+      0%, 100% { box-shadow: 0 0 20px rgba(239, 68, 68, 0.4); }
+      50% { box-shadow: 0 0 40px rgba(239, 68, 68, 0.8); }
+    }
+    .pulse-glow { animation: pulseGlow 2s ease-in-out infinite; }
+
+    @keyframes slideUp {
+      0% { transform: translateY(40px); opacity: 0; }
+      100% { transform: translateY(0); opacity: 1; }
+    }
+    .slide-up { animation: slideUp 0.6s ease-out forwards; }
+
+    @keyframes impactText {
+      0% { transform: scale(0) rotate(-20deg); opacity: 0; }
+      50% { transform: scale(1.3) rotate(5deg); opacity: 1; }
+      100% { transform: scale(1) rotate(0deg); opacity: 1; }
+    }
+    .impact-text { animation: impactText 0.5s ease-out forwards; }
+
+    .bean-cursor { cursor: url("data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' width='32' height='32' viewBox='0 0 32 32'><text y='24' font-size='24'>👊</text></svg>") 16 16, pointer; }
+
+    #share-canvas { image-rendering: -webkit-optimize-contrast; }
+  </style>
+</head>
+
+<body class="min-h-screen bg-gradient-to-b from-indigo-950 via-purple-950 to-slate-950 text-white overflow-x-hidden">
+
+  <!-- ===== SCREEN 1: INPUT ===== -->
+  <div id="screen-input" class="screen min-h-screen flex flex-col items-center justify-center p-4">
+    <div class="text-center mb-8 slide-up">
+      <p class="text-6xl mb-4">👹</p>
+      <h1 class="text-3xl sm:text-4xl font-black text-amber-400 mb-2" style="text-shadow: 0 0 30px rgba(245,158,11,0.5);">節分鬼退治</h1>
+      <p class="text-base sm:text-lg text-amber-200/80">自分の中の鬼を倒せ！</p>
+    </div>
+
+    <div class="w-full max-w-sm space-y-6">
+      <div class="space-y-2">
+        <label for="oni-name" class="block text-sm font-bold text-amber-300">やっつけたい鬼を入力</label>
+        <div class="flex gap-2">
+          <input
+            id="oni-name"
+            type="text"
+            class="flex-1 px-4 py-3 bg-white/10 border border-amber-500/30 rounded-xl text-white placeholder-white/40 focus:outline-none focus:ring-2 focus:ring-amber-500 focus:border-transparent text-lg"
+            placeholder="例：怠け、先延ばし、夜ふかし"
+            maxlength="20"
+            autocomplete="off"
+          />
+          <span class="flex items-center text-2xl font-bold text-amber-400">鬼</span>
+        </div>
+        <div id="suggestions" class="flex flex-wrap gap-2 mt-2">
+          <button class="suggest-btn px-3 py-1 text-xs bg-white/10 rounded-full hover:bg-white/20 transition" data-name="怠け">怠け鬼</button>
+          <button class="suggest-btn px-3 py-1 text-xs bg-white/10 rounded-full hover:bg-white/20 transition" data-name="先延ばし">先延ばし鬼</button>
+          <button class="suggest-btn px-3 py-1 text-xs bg-white/10 rounded-full hover:bg-white/20 transition" data-name="夜ふかし">夜ふかし鬼</button>
+          <button class="suggest-btn px-3 py-1 text-xs bg-white/10 rounded-full hover:bg-white/20 transition" data-name="食いしん坊">食いしん坊鬼</button>
+          <button class="suggest-btn px-3 py-1 text-xs bg-white/10 rounded-full hover:bg-white/20 transition" data-name="散財">散財鬼</button>
+          <button class="suggest-btn px-3 py-1 text-xs bg-white/10 rounded-full hover:bg-white/20 transition" data-name="スマホ依存">スマホ依存鬼</button>
+        </div>
+      </div>
+
+      <button
+        id="btn-summon"
+        class="w-full py-4 bg-red-600 hover:bg-red-700 text-white font-black text-lg rounded-xl shadow-lg transition-all pulse-glow disabled:opacity-40 disabled:cursor-not-allowed"
+        disabled
+      >
+        鬼を召喚する
+      </button>
+    </div>
+
+    <p class="mt-12 text-xs text-white/30">Created by <a href="https://twitter.com/momotarabitch" target="_blank" class="underline hover:text-white/50">@momotarabitch</a></p>
+  </div>
+
+  <!-- ===== SCREEN 2: BATTLE ===== -->
+  <div id="screen-battle" class="screen hidden min-h-screen flex flex-col items-center justify-center p-4 relative">
+    <div id="battle-container" class="relative flex flex-col items-center">
+      <!-- Demon name -->
+      <div id="oni-name-display" class="text-2xl sm:text-3xl font-black text-red-400 mb-2" style="text-shadow: 0 0 20px rgba(239,68,68,0.6);"></div>
+
+      <!-- Speech bubble -->
+      <div id="speech-bubble" class="relative bg-white text-gray-800 rounded-2xl px-5 py-3 mb-4 max-w-xs text-center font-bold text-sm sm:text-base shadow-xl">
+        <span id="speech-text"></span>
+        <div class="absolute bottom-0 left-1/2 -translate-x-1/2 translate-y-full w-0 h-0 border-l-[10px] border-r-[10px] border-t-[12px] border-l-transparent border-r-transparent border-t-white"></div>
+      </div>
+
+      <!-- Demon canvas -->
+      <canvas id="oni-canvas" width="360" height="420" class="float-anim" style="max-width: 90vw;"></canvas>
+    </div>
+
+    <button
+      id="btn-throw"
+      class="mt-6 px-10 py-4 bg-amber-500 hover:bg-amber-600 text-white font-black text-xl rounded-xl shadow-lg transition-all bean-cursor"
+      style="text-shadow: 0 1px 2px rgba(0,0,0,0.3);"
+    >
+      👊 豆で退治する！
+    </button>
+
+    <!-- Flash overlay -->
+    <div id="flash-overlay" class="fixed inset-0 bg-white z-40 pointer-events-none opacity-0"></div>
+  </div>
+
+  <!-- ===== SCREEN 3: VICTORY ===== -->
+  <div id="screen-victory" class="screen hidden min-h-screen flex flex-col items-center justify-center p-4">
+    <div class="text-center space-y-6 max-w-sm w-full">
+      <p class="text-5xl">🎉</p>
+      <h2 id="victory-title" class="text-2xl sm:text-3xl font-black text-amber-400" style="text-shadow: 0 0 30px rgba(245,158,11,0.5);"></h2>
+      <p class="text-amber-200/80 text-base">福は内！今年も良い一年になりますように</p>
+
+      <!-- Share image preview -->
+      <div class="rounded-xl overflow-hidden shadow-2xl border-2 border-amber-500/30">
+        <canvas id="share-canvas" width="1200" height="630" class="w-full h-auto"></canvas>
+      </div>
+
+      <!-- Share buttons -->
+      <p class="text-sm text-amber-300 font-bold">鬼退治をシェアしよう！</p>
+      <div class="flex flex-col gap-3">
+        <button id="btn-save-image" class="w-full py-3 bg-emerald-600 hover:bg-emerald-700 text-white font-bold rounded-xl shadow transition-all flex items-center justify-center gap-2">
+          📷 シェア画像を保存
+        </button>
+        <a id="btn-share-twitter" href="#" target="_blank" class="block w-full py-3 bg-black hover:bg-gray-900 text-white font-bold rounded-xl shadow transition-all text-center">
+          𝕏 でシェア
+        </a>
+        <a id="btn-share-line" href="#" target="_blank" class="block w-full py-3 bg-[#06C755] hover:bg-[#05b04c] text-white font-bold rounded-xl shadow transition-all text-center">
+          LINE でシェア
+        </a>
+      </div>
+
+      <button id="btn-retry" class="w-full py-3 bg-white/10 hover:bg-white/20 text-white font-bold rounded-xl shadow transition-all mt-4">
+        もう一回退治する
+      </button>
+
+      <p class="text-xs text-white/30 mt-4">Created by <a href="https://twitter.com/momotarabitch" target="_blank" class="underline hover:text-white/50">@momotarabitch</a></p>
+    </div>
+  </div>
+
+  <!-- ===== SUMMONING OVERLAY ===== -->
+  <div id="summon-overlay" class="fixed inset-0 bg-black z-50 flex items-center justify-center hidden" style="opacity:0; transition: opacity 0.3s;">
+    <div class="text-center">
+      <p class="text-5xl mb-4 animate-bounce">👹</p>
+      <p class="text-2xl font-black text-red-500 animate-pulse">召喚中...</p>
+    </div>
+  </div>
+
+  <script>
+    // ========================
+    // UTILITIES
+    // ========================
+    function hashCode(str) {
+      let hash = 0;
+      for (let i = 0; i < str.length; i++) {
+        hash = ((hash << 5) - hash) + str.charCodeAt(i);
+        hash |= 0;
+      }
+      return Math.abs(hash);
+    }
+
+    function seededRandom(seed) {
+      let s = seed;
+      return function() {
+        s = (s * 16807 + 0) % 2147483647;
+        return (s - 1) / 2147483646;
+      };
+    }
+
+    // ========================
+    // DEMON CONFIG
+    // ========================
+    const ONI_BODY_COLORS = [
+      '#e74c3c', '#c0392b', '#3498db', '#2980b9',
+      '#27ae60', '#8e44ad', '#d35400', '#e84393',
+    ];
+    const ONI_HORN_COLORS = ['#f1c40f', '#f39c12', '#e8daab', '#d4ac6e'];
+    const ONI_HAIR_COLORS = ['#2c2c2c', '#4a2c0a', '#8b1a1a', '#1a3a5c', '#3d1a5c'];
+
+    function getDialogue(name) {
+      const map = [
+        { kw: ['怠', 'なまけ', 'サボ', 'だらだら', 'ダラダラ'], msg: 'もっとゴロゴロしようぜ〜' },
+        { kw: ['食', 'グルメ', '甘', 'スイーツ', '大食'], msg: 'もっと食べちゃえよ〜！' },
+        { kw: ['寝', '眠', '夜ふかし', '夜更かし'], msg: 'まだまだ寝てていいぞ〜' },
+        { kw: ['先延ばし', '後回し', '明日'], msg: '明日やればいいじゃん〜？' },
+        { kw: ['酒', '飲', '二日酔い'], msg: 'もう一杯いっとく〜？' },
+        { kw: ['怒', 'イライラ', '短気'], msg: 'イライラして当然だぞ〜！' },
+        { kw: ['浪費', '散財', '買い物', '課金'], msg: 'お金は使うためにあるんだ〜！' },
+        { kw: ['SNS', 'スマホ', 'ネット', '依存'], msg: 'もうちょっとだけ見ようぜ〜' },
+        { kw: ['嫉妬', 'うらやま', '妬'], msg: 'あいつばっかりズルいよな〜' },
+        { kw: ['心配', '不安', '悩'], msg: '不安になるのは当然だぞ〜' },
+        { kw: ['めんどう', '面倒', 'めんどくさ'], msg: 'やらなくていいって〜' },
+        { kw: ['完璧', '完璧主義'], msg: '完璧じゃなきゃダメだぞ〜' },
+        { kw: ['三日坊主', '続かない', '飽き'], msg: 'どうせ続かないぞ〜' },
+        { kw: ['見栄', '自慢'], msg: '周りにどう思われるかが大事だぞ〜' },
+      ];
+      for (const entry of map) {
+        if (entry.kw.some(k => name.includes(k))) return entry.msg;
+      }
+      const defaults = [
+        'へへへ、俺を倒せるかな〜？',
+        'お前には俺は倒せないぞ！',
+        '俺はお前の一部だぞ〜！',
+        '豆なんか怖くねーし！',
+        'お前にゃ無理だ〜！',
+      ];
+      return defaults[hashCode(name) % defaults.length];
+    }
+
+    function getOniConfig(name) {
+      const h = hashCode(name);
+      const rand = seededRandom(h);
+      return {
+        name: name,
+        bodyColor: ONI_BODY_COLORS[h % ONI_BODY_COLORS.length],
+        hornColor: ONI_HORN_COLORS[h % ONI_HORN_COLORS.length],
+        hairColor: ONI_HAIR_COLORS[h % ONI_HAIR_COLORS.length],
+        hornCount: (h % 2) + 1,
+        dialogue: getDialogue(name),
+        eyeStyle: h % 3,
+        mouthStyle: h % 3,
+        rand: rand,
+      };
+    }
+
+    // ========================
+    // DEMON DRAWING
+    // ========================
+    function drawOni(canvas, config, defeated) {
+      const ctx = canvas.getContext('2d');
+      const w = canvas.width;
+      const h = canvas.height;
+      ctx.clearRect(0, 0, w, h);
+
+      const cx = w / 2;
+      const bodyColor = config.bodyColor;
+      const darkerBody = darkenColor(bodyColor, 0.7);
+
+      // Ground shadow
+      ctx.beginPath();
+      ctx.ellipse(cx, h * 0.92, 70, 12, 0, 0, Math.PI * 2);
+      ctx.fillStyle = 'rgba(0,0,0,0.25)';
+      ctx.fill();
+
+      // Kanabō (behind body)
+      drawKanabo(ctx, cx + 90, h * 0.32, h * 0.55);
+
+      // Body / torso
+      const bodyX = cx;
+      const bodyY = h * 0.6;
+      const bodyRX = 60;
+      const bodyRY = 75;
+
+      // Legs
+      ctx.fillStyle = bodyColor;
+      roundRect(ctx, cx - 35, h * 0.72, 28, 50, 10);
+      ctx.fill();
+      ctx.strokeStyle = darkerBody;
+      ctx.lineWidth = 2;
+      ctx.stroke();
+
+      roundRect(ctx, cx + 7, h * 0.72, 28, 50, 10);
+      ctx.fillStyle = bodyColor;
+      ctx.fill();
+      ctx.stroke();
+
+      // Feet
+      ctx.beginPath();
+      ctx.ellipse(cx - 21, h * 0.9, 18, 10, 0, 0, Math.PI * 2);
+      ctx.fillStyle = bodyColor;
+      ctx.fill();
+      ctx.stroke();
+      ctx.beginPath();
+      ctx.ellipse(cx + 21, h * 0.9, 18, 10, 0, 0, Math.PI * 2);
+      ctx.fill();
+      ctx.stroke();
+
+      // Tiger pants
+      drawTigerPants(ctx, cx - 50, h * 0.67, 100, 55);
+
+      // Body ellipse
+      ctx.beginPath();
+      ctx.ellipse(bodyX, bodyY, bodyRX, bodyRY, 0, 0, Math.PI * 2);
+      ctx.fillStyle = bodyColor;
+      ctx.fill();
+      ctx.strokeStyle = darkerBody;
+      ctx.lineWidth = 2.5;
+      ctx.stroke();
+
+      // Belly
+      ctx.beginPath();
+      ctx.ellipse(bodyX, bodyY + 10, bodyRX * 0.55, bodyRY * 0.5, 0, 0, Math.PI * 2);
+      ctx.fillStyle = lightenColor(bodyColor, 1.3);
+      ctx.fill();
+
+      // Arms
+      // Left arm
+      ctx.save();
+      ctx.translate(cx - 62, h * 0.55);
+      ctx.rotate(-0.3);
+      ctx.beginPath();
+      ctx.ellipse(0, 0, 20, 40, 0, 0, Math.PI * 2);
+      ctx.fillStyle = bodyColor;
+      ctx.fill();
+      ctx.strokeStyle = darkerBody;
+      ctx.lineWidth = 2;
+      ctx.stroke();
+      ctx.restore();
+
+      // Right arm (holding kanabō)
+      ctx.save();
+      ctx.translate(cx + 62, h * 0.53);
+      ctx.rotate(0.4);
+      ctx.beginPath();
+      ctx.ellipse(0, 0, 20, 40, 0, 0, Math.PI * 2);
+      ctx.fillStyle = bodyColor;
+      ctx.fill();
+      ctx.strokeStyle = darkerBody;
+      ctx.lineWidth = 2;
+      ctx.stroke();
+      ctx.restore();
+
+      // HEAD
+      const headX = cx;
+      const headY = h * 0.32;
+      const headR = 75;
+
+      // Head circle
+      ctx.beginPath();
+      ctx.arc(headX, headY, headR, 0, Math.PI * 2);
+      ctx.fillStyle = bodyColor;
+      ctx.fill();
+      ctx.strokeStyle = darkerBody;
+      ctx.lineWidth = 2.5;
+      ctx.stroke();
+
+      // Hair (curly puffs)
+      drawHair(ctx, headX, headY, headR, config.hairColor);
+
+      // Horns
+      drawHorns(ctx, headX, headY - headR + 5, config.hornCount, config.hornColor);
+
+      // Face
+      if (defeated) {
+        drawDefeatedFace(ctx, headX, headY);
+      } else {
+        drawFace(ctx, headX, headY, config.eyeStyle, config.mouthStyle);
+      }
+    }
+
+    function drawHair(ctx, hx, hy, hr, color) {
+      const darker = darkenColor(color, 0.8);
+      const puffs = [
+        { x: -55, y: -50, r: 22 },
+        { x: -35, y: -62, r: 20 },
+        { x: -10, y: -70, r: 22 },
+        { x: 15, y: -68, r: 20 },
+        { x: 40, y: -58, r: 22 },
+        { x: 58, y: -45, r: 20 },
+        { x: -65, y: -35, r: 18 },
+        { x: 68, y: -30, r: 18 },
+      ];
+      for (const p of puffs) {
+        ctx.beginPath();
+        ctx.arc(hx + p.x, hy + p.y, p.r, 0, Math.PI * 2);
+        ctx.fillStyle = color;
+        ctx.fill();
+        ctx.strokeStyle = darker;
+        ctx.lineWidth = 1.5;
+        ctx.stroke();
+      }
+    }
+
+    function drawHorns(ctx, cx, topY, count, color) {
+      const darker = darkenColor(color, 0.7);
+      const positions = count === 1
+        ? [{ x: 0, y: 0 }]
+        : [{ x: -28, y: 5 }, { x: 28, y: 5 }];
+
+      for (const pos of positions) {
+        const bx = cx + pos.x;
+        const by = topY + pos.y;
+        ctx.beginPath();
+        ctx.moveTo(bx - 12, by);
+        ctx.lineTo(bx, by - 45);
+        ctx.lineTo(bx + 12, by);
+        ctx.closePath();
+        ctx.fillStyle = color;
+        ctx.fill();
+        ctx.strokeStyle = darker;
+        ctx.lineWidth = 2;
+        ctx.stroke();
+
+        // Stripe on horn
+        ctx.beginPath();
+        ctx.moveTo(bx - 6, by - 10);
+        ctx.lineTo(bx, by - 30);
+        ctx.lineTo(bx + 6, by - 10);
+        ctx.closePath();
+        ctx.fillStyle = darker;
+        ctx.fill();
+      }
+    }
+
+    function drawFace(ctx, hx, hy, eyeStyle, mouthStyle) {
+      const eyeY = hy - 5;
+      const eyeLX = hx - 25;
+      const eyeRX = hx + 25;
+
+      // Eyebrows (angry)
+      ctx.strokeStyle = '#2c2c2c';
+      ctx.lineWidth = 4;
+      ctx.lineCap = 'round';
+      // Left eyebrow
+      ctx.beginPath();
+      ctx.moveTo(eyeLX - 16, eyeY - 22);
+      ctx.lineTo(eyeLX + 10, eyeY - 14);
+      ctx.stroke();
+      // Right eyebrow
+      ctx.beginPath();
+      ctx.moveTo(eyeRX + 16, eyeY - 22);
+      ctx.lineTo(eyeRX - 10, eyeY - 14);
+      ctx.stroke();
+
+      // Eyes
+      const eyeW = 18, eyeH = 20;
+      for (const ex of [eyeLX, eyeRX]) {
+        // White
+        ctx.beginPath();
+        ctx.ellipse(ex, eyeY, eyeW, eyeH, 0, 0, Math.PI * 2);
+        ctx.fillStyle = '#fff';
+        ctx.fill();
+        ctx.strokeStyle = '#333';
+        ctx.lineWidth = 2;
+        ctx.stroke();
+        // Pupil
+        const pupilOffX = ex < hx ? 3 : -3;
+        ctx.beginPath();
+        ctx.arc(ex + pupilOffX, eyeY + 2, 8, 0, Math.PI * 2);
+        ctx.fillStyle = '#2c2c2c';
+        ctx.fill();
+        // Highlight
+        ctx.beginPath();
+        ctx.arc(ex + pupilOffX + 3, eyeY - 2, 3, 0, Math.PI * 2);
+        ctx.fillStyle = '#fff';
+        ctx.fill();
+      }
+
+      // Nose
+      ctx.beginPath();
+      ctx.arc(hx, hy + 15, 6, 0, Math.PI * 2);
+      ctx.fillStyle = darkenColor('#e74c3c', 0.8);
+      ctx.fill();
+
+      // Mouth (wide grin)
+      const mouthY = hy + 30;
+      ctx.beginPath();
+      ctx.arc(hx, mouthY - 5, 30, 0.15 * Math.PI, 0.85 * Math.PI);
+      ctx.strokeStyle = '#2c2c2c';
+      ctx.lineWidth = 3;
+      ctx.stroke();
+
+      // Inner mouth
+      ctx.beginPath();
+      ctx.arc(hx, mouthY - 5, 30, 0.15 * Math.PI, 0.85 * Math.PI);
+      ctx.lineTo(hx - 28, mouthY + 5);
+      ctx.fillStyle = '#8b0000';
+      ctx.fill();
+
+      // Fangs
+      ctx.fillStyle = '#fff';
+      ctx.strokeStyle = '#ccc';
+      ctx.lineWidth = 1;
+      // Left fang
+      ctx.beginPath();
+      ctx.moveTo(hx - 18, mouthY - 2);
+      ctx.lineTo(hx - 13, mouthY + 12);
+      ctx.lineTo(hx - 8, mouthY - 2);
+      ctx.closePath();
+      ctx.fill();
+      ctx.stroke();
+      // Right fang
+      ctx.beginPath();
+      ctx.moveTo(hx + 8, mouthY - 2);
+      ctx.lineTo(hx + 13, mouthY + 12);
+      ctx.lineTo(hx + 18, mouthY - 2);
+      ctx.closePath();
+      ctx.fill();
+      ctx.stroke();
+
+      // Cheek blush
+      ctx.beginPath();
+      ctx.ellipse(hx - 45, hy + 15, 12, 8, 0, 0, Math.PI * 2);
+      ctx.fillStyle = 'rgba(255, 100, 100, 0.3)';
+      ctx.fill();
+      ctx.beginPath();
+      ctx.ellipse(hx + 45, hy + 15, 12, 8, 0, 0, Math.PI * 2);
+      ctx.fill();
+    }
+
+    function drawDefeatedFace(ctx, hx, hy) {
+      const eyeY = hy - 5;
+      const eyeLX = hx - 25;
+      const eyeRX = hx + 25;
+
+      // X eyes
+      ctx.strokeStyle = '#2c2c2c';
+      ctx.lineWidth = 4;
+      ctx.lineCap = 'round';
+      for (const ex of [eyeLX, eyeRX]) {
+        ctx.beginPath();
+        ctx.moveTo(ex - 10, eyeY - 10);
+        ctx.lineTo(ex + 10, eyeY + 10);
+        ctx.stroke();
+        ctx.beginPath();
+        ctx.moveTo(ex + 10, eyeY - 10);
+        ctx.lineTo(ex - 10, eyeY + 10);
+        ctx.stroke();
+      }
+
+      // Wobbly mouth
+      ctx.beginPath();
+      ctx.moveTo(hx - 20, hy + 30);
+      ctx.quadraticCurveTo(hx - 10, hy + 22, hx, hy + 30);
+      ctx.quadraticCurveTo(hx + 10, hy + 38, hx + 20, hy + 30);
+      ctx.strokeStyle = '#2c2c2c';
+      ctx.lineWidth = 3;
+      ctx.stroke();
+
+      // Dizzy stars
+      ctx.font = '16px sans-serif';
+      ctx.fillText('⭐', hx - 55, hy - 35);
+      ctx.fillText('💫', hx + 40, hy - 30);
+    }
+
+    function drawTigerPants(ctx, x, y, w, h) {
+      ctx.save();
+      ctx.beginPath();
+      roundRectPath(ctx, x, y, w, h, 8);
+      ctx.clip();
+
+      ctx.fillStyle = '#f1c40f';
+      ctx.fillRect(x, y, w, h);
+
+      ctx.strokeStyle = '#2c2c2c';
+      ctx.lineWidth = 5;
+      const stripeGap = 14;
+      for (let i = -w; i < w + h; i += stripeGap) {
+        ctx.beginPath();
+        ctx.moveTo(x + i, y);
+        ctx.lineTo(x + i + h, y + h);
+        ctx.stroke();
+      }
+      ctx.restore();
+
+      ctx.strokeStyle = '#b8860b';
+      ctx.lineWidth = 2;
+      roundRect(ctx, x, y, w, h, 8);
+      ctx.stroke();
+    }
+
+    function drawKanabo(ctx, x, topY, botY) {
+      const kw = 16;
+      ctx.fillStyle = '#5a5a5a';
+      ctx.strokeStyle = '#3a3a3a';
+      ctx.lineWidth = 2;
+
+      roundRect(ctx, x - kw/2, topY, kw, botY - topY, 6);
+      ctx.fill();
+      ctx.stroke();
+
+      // Spikes
+      ctx.fillStyle = '#4a4a4a';
+      const spikeCount = 5;
+      for (let i = 0; i < spikeCount; i++) {
+        const sy = topY + 20 + i * ((botY - topY - 40) / (spikeCount - 1));
+        for (const sx of [x - kw/2 - 3, x + kw/2 + 3]) {
+          ctx.beginPath();
+          ctx.arc(sx, sy, 5, 0, Math.PI * 2);
+          ctx.fillStyle = '#6a6a6a';
+          ctx.fill();
+          ctx.stroke();
+        }
+      }
+
+      // Handle wrap
+      ctx.fillStyle = '#8B4513';
+      for (let i = 0; i < 3; i++) {
+        const wy = botY - 15 - i * 12;
+        ctx.fillRect(x - kw/2 - 1, wy, kw + 2, 4);
+      }
+    }
+
+    // ========================
+    // DRAWING HELPERS
+    // ========================
+    function roundRect(ctx, x, y, w, h, r) {
+      ctx.beginPath();
+      roundRectPath(ctx, x, y, w, h, r);
+      return ctx;
+    }
+
+    function roundRectPath(ctx, x, y, w, h, r) {
+      ctx.moveTo(x + r, y);
+      ctx.lineTo(x + w - r, y);
+      ctx.arcTo(x + w, y, x + w, y + r, r);
+      ctx.lineTo(x + w, y + h - r);
+      ctx.arcTo(x + w, y + h, x + w - r, y + h, r);
+      ctx.lineTo(x + r, y + h);
+      ctx.arcTo(x, y + h, x, y + h - r, r);
+      ctx.lineTo(x, y + r);
+      ctx.arcTo(x, y, x + r, y, r);
+      ctx.closePath();
+    }
+
+    function darkenColor(hex, factor) {
+      const r = parseInt(hex.slice(1,3), 16);
+      const g = parseInt(hex.slice(3,5), 16);
+      const b = parseInt(hex.slice(5,7), 16);
+      return `rgb(${Math.floor(r*factor)},${Math.floor(g*factor)},${Math.floor(b*factor)})`;
+    }
+
+    function lightenColor(hex, factor) {
+      const r = Math.min(255, parseInt(hex.slice(1,3), 16) * factor);
+      const g = Math.min(255, parseInt(hex.slice(3,5), 16) * factor);
+      const b = Math.min(255, parseInt(hex.slice(5,7), 16) * factor);
+      return `rgb(${Math.floor(r)},${Math.floor(g)},${Math.floor(b)})`;
+    }
+
+    // ========================
+    // SHARE IMAGE GENERATION
+    // ========================
+    function generateShareImage(config) {
+      const canvas = document.getElementById('share-canvas');
+      const ctx = canvas.getContext('2d');
+      const w = 1200, h = 630;
+
+      // Background gradient
+      const grad = ctx.createLinearGradient(0, 0, 0, h);
+      grad.addColorStop(0, '#1a0a2e');
+      grad.addColorStop(0.5, '#2d1b4e');
+      grad.addColorStop(1, '#1a0a2e');
+      ctx.fillStyle = grad;
+      ctx.fillRect(0, 0, w, h);
+
+      // Decorative circles
+      for (let i = 0; i < 20; i++) {
+        const rand = config.rand;
+        ctx.beginPath();
+        ctx.arc(rand() * w, rand() * h, rand() * 30 + 10, 0, Math.PI * 2);
+        ctx.fillStyle = `rgba(245, 158, 11, ${rand() * 0.08 + 0.02})`;
+        ctx.fill();
+      }
+
+      // Draw defeated oni (scaled) on left side
+      const oniCanvas = document.createElement('canvas');
+      oniCanvas.width = 360;
+      oniCanvas.height = 420;
+      drawOni(oniCanvas, config, true);
+      ctx.drawImage(oniCanvas, 40, 120, 320, 375);
+
+      // Impact effect behind oni
+      ctx.save();
+      ctx.globalCompositeOperation = 'lighter';
+      const impactGrad = ctx.createRadialGradient(200, 310, 0, 200, 310, 200);
+      impactGrad.addColorStop(0, 'rgba(255, 200, 0, 0.15)');
+      impactGrad.addColorStop(1, 'rgba(255, 200, 0, 0)');
+      ctx.fillStyle = impactGrad;
+      ctx.fillRect(0, 100, 400, 430);
+      ctx.restore();
+
+      // Text area on right side
+      const textX = 450;
+
+      // "退治完了！" header
+      ctx.font = 'bold 36px "Noto Sans JP", sans-serif';
+      ctx.fillStyle = '#f59e0b';
+      ctx.textAlign = 'left';
+      ctx.fillText('👹 退治完了！', textX, 180);
+
+      // Demon name
+      ctx.font = '900 72px "Noto Sans JP", sans-serif';
+      ctx.fillStyle = '#ffffff';
+      const displayName = config.name + '鬼';
+      // Handle long names
+      if (ctx.measureText(displayName).width > 680) {
+        ctx.font = '900 52px "Noto Sans JP", sans-serif';
+      }
+      ctx.fillText(displayName, textX, 280);
+
+      // "を倒しました！"
+      ctx.font = 'bold 48px "Noto Sans JP", sans-serif';
+      ctx.fillStyle = '#fbbf24';
+      ctx.fillText('を倒しました！', textX, 360);
+
+      // Decorative line
+      ctx.beginPath();
+      ctx.moveTo(textX, 390);
+      ctx.lineTo(textX + 500, 390);
+      ctx.strokeStyle = 'rgba(245, 158, 11, 0.3)';
+      ctx.lineWidth = 2;
+      ctx.stroke();
+
+      // Subtext
+      ctx.font = '28px "Noto Sans JP", sans-serif';
+      ctx.fillStyle = 'rgba(255, 255, 255, 0.6)';
+      ctx.fillText('福は内！今年も良い一年になりますように', textX, 440);
+
+      // Beans decorations
+      ctx.font = '40px sans-serif';
+      ctx.fillText('💥', 340, 200);
+      ctx.fillText('💥', 280, 400);
+
+      // Footer branding
+      ctx.font = 'bold 24px "Noto Sans JP", sans-serif';
+      ctx.fillStyle = 'rgba(255, 255, 255, 0.4)';
+      ctx.textAlign = 'right';
+      ctx.fillText('節分鬼退治 | にゃーん.jp', w - 40, h - 30);
+      ctx.textAlign = 'left';
+
+      // Border
+      ctx.strokeStyle = 'rgba(245, 158, 11, 0.3)';
+      ctx.lineWidth = 4;
+      ctx.strokeRect(10, 10, w - 20, h - 20);
+
+      return canvas;
+    }
+
+    // ========================
+    // BEAN THROWING ANIMATION
+    // ========================
+    function throwBeans(targetEl, callback) {
+      const container = document.getElementById('screen-battle');
+      const rect = targetEl.getBoundingClientRect();
+      const targetCX = rect.left + rect.width / 2;
+      const targetCY = rect.top + rect.height / 2;
+
+      const beanCount = 25;
+      const beans = [];
+      const beanColors = ['#d4a574', '#c4956a', '#b8895e', '#caaa7a', '#d9b88a'];
+
+      for (let i = 0; i < beanCount; i++) {
+        const bean = document.createElement('div');
+        bean.className = 'bean';
+        const startX = window.innerWidth / 2 + (Math.random() - 0.5) * 200;
+        const startY = window.innerHeight + 20;
+        bean.style.left = startX + 'px';
+        bean.style.top = startY + 'px';
+        bean.style.backgroundColor = beanColors[i % beanColors.length];
+        bean.style.boxShadow = `inset -2px -2px 4px rgba(0,0,0,0.3), inset 2px 2px 4px rgba(255,255,255,0.3)`;
+
+        const tx = targetCX - startX + (Math.random() - 0.5) * 80;
+        const ty = targetCY - startY + (Math.random() - 0.5) * 80;
+        bean.style.setProperty('--tx', tx + 'px');
+        bean.style.setProperty('--ty', ty + 'px');
+        bean.style.setProperty('--delay', (Math.random() * 0.6) + 's');
+        bean.style.setProperty('--duration', (0.5 + Math.random() * 0.4) + 's');
+
+        document.body.appendChild(bean);
+        beans.push(bean);
+
+        requestAnimationFrame(() => bean.classList.add('thrown'));
+      }
+
+      // Impact shake after beans land
+      setTimeout(() => {
+        targetEl.classList.remove('float-anim');
+        targetEl.classList.add('shake');
+      }, 700);
+
+      // Flash
+      setTimeout(() => {
+        const flash = document.getElementById('flash-overlay');
+        flash.classList.add('flash');
+        setTimeout(() => flash.classList.remove('flash'), 400);
+      }, 1100);
+
+      // Defeat animation
+      setTimeout(() => {
+        const battleContainer = document.getElementById('battle-container');
+        battleContainer.classList.add('defeat');
+      }, 1300);
+
+      // Show impact text
+      setTimeout(() => {
+        const impactDiv = document.createElement('div');
+        impactDiv.className = 'fixed inset-0 flex items-center justify-center z-30 pointer-events-none';
+        impactDiv.innerHTML = '<p class="text-6xl sm:text-8xl font-black text-amber-400 impact-text" style="text-shadow: 0 0 40px rgba(245,158,11,0.8), 0 4px 8px rgba(0,0,0,0.5);">鬼退治！</p>';
+        document.body.appendChild(impactDiv);
+        setTimeout(() => impactDiv.remove(), 1500);
+      }, 1200);
+
+      // Cleanup and callback
+      setTimeout(() => {
+        beans.forEach(b => b.remove());
+        if (callback) callback();
+      }, 2500);
+    }
+
+    // ========================
+    // CONFETTI
+    // ========================
+    function launchConfetti() {
+      const colors = ['#f59e0b', '#ef4444', '#22c55e', '#3b82f6', '#a855f7', '#ec4899', '#f97316'];
+      const shapes = ['■', '●', '▲', '◆'];
+      for (let i = 0; i < 60; i++) {
+        const piece = document.createElement('div');
+        piece.className = 'confetti-piece';
+        piece.style.left = Math.random() * 100 + 'vw';
+        piece.style.backgroundColor = colors[Math.floor(Math.random() * colors.length)];
+        piece.style.width = (Math.random() * 8 + 6) + 'px';
+        piece.style.height = (Math.random() * 8 + 6) + 'px';
+        piece.style.borderRadius = Math.random() > 0.5 ? '50%' : '0';
+        piece.style.setProperty('--fall-duration', (Math.random() * 2 + 2) + 's');
+        piece.style.setProperty('--fall-delay', (Math.random() * 1) + 's');
+        document.body.appendChild(piece);
+        setTimeout(() => piece.remove(), 5000);
+      }
+    }
+
+    // ========================
+    // SCREEN MANAGEMENT
+    // ========================
+    let currentOniConfig = null;
+    const screens = ['screen-input', 'screen-battle', 'screen-victory'];
+
+    function showScreen(id) {
+      for (const sid of screens) {
+        const el = document.getElementById(sid);
+        if (sid === id) {
+          el.classList.remove('hidden');
+          el.style.opacity = '0';
+          requestAnimationFrame(() => { el.style.opacity = '1'; });
+        } else {
+          el.classList.add('hidden');
+        }
+      }
+    }
+
+    function summonOni() {
+      const nameInput = document.getElementById('oni-name').value.trim();
+      if (!nameInput) return;
+
+      const fullName = nameInput;
+      currentOniConfig = getOniConfig(fullName);
+
+      // Show summoning overlay
+      const overlay = document.getElementById('summon-overlay');
+      overlay.classList.remove('hidden');
+      overlay.style.opacity = '1';
+
+      setTimeout(() => {
+        // Draw oni
+        const canvas = document.getElementById('oni-canvas');
+        drawOni(canvas, currentOniConfig, false);
+
+        // Set name and dialogue
+        document.getElementById('oni-name-display').textContent = '👹 ' + fullName + '鬼 👹';
+        document.getElementById('speech-text').textContent = currentOniConfig.dialogue;
+
+        // Reset battle container state
+        const battleContainer = document.getElementById('battle-container');
+        battleContainer.classList.remove('defeat');
+        const oniCanvas = document.getElementById('oni-canvas');
+        oniCanvas.classList.remove('shake');
+        oniCanvas.classList.add('float-anim');
+
+        // Transition
+        overlay.style.opacity = '0';
+        setTimeout(() => overlay.classList.add('hidden'), 300);
+        showScreen('screen-battle');
+      }, 1200);
+    }
+
+    function startThrow() {
+      const btn = document.getElementById('btn-throw');
+      btn.disabled = true;
+      btn.textContent = '🫘 鬼は外！！！';
+
+      const canvas = document.getElementById('oni-canvas');
+      throwBeans(canvas, () => {
+        // Draw defeated oni
+        drawOni(canvas, currentOniConfig, true);
+
+        setTimeout(() => showVictory(), 500);
+      });
+    }
+
+    function showVictory() {
+      const name = currentOniConfig.name;
+      const displayName = name + '鬼';
+
+      document.getElementById('victory-title').textContent = '🎉 ' + displayName + 'を退治しました！ 🎉';
+
+      // Regenerate config rand for share image
+      currentOniConfig.rand = seededRandom(hashCode(name));
+      generateShareImage(currentOniConfig);
+
+      // Share URLs
+      const shareText = `【節分鬼退治】${displayName}を退治しました！👹💥\nあなたも自分の中の鬼を退治しよう！\n#節分 #鬼退治 #にゃーんjp`;
+      const shareUrl = 'https://xn--r9j5b5b9y.jp/setsubun.html';
+
+      document.getElementById('btn-share-twitter').href =
+        'https://twitter.com/intent/tweet?text=' + encodeURIComponent(shareText + '\n' + shareUrl);
+      document.getElementById('btn-share-line').href =
+        'https://social-plugins.line.me/lineit/share?url=' + encodeURIComponent(shareUrl) + '&text=' + encodeURIComponent(shareText);
+
+      showScreen('screen-victory');
+      launchConfetti();
+
+      // Reset throw button
+      const btn = document.getElementById('btn-throw');
+      btn.disabled = false;
+      btn.textContent = '👊 豆で退治する！';
+    }
+
+    function downloadShareImage() {
+      const canvas = document.getElementById('share-canvas');
+      const link = document.createElement('a');
+      link.download = (currentOniConfig.name || 'oni') + '鬼_退治.png';
+      link.href = canvas.toDataURL('image/png');
+      link.click();
+    }
+
+    // ========================
+    // EVENT LISTENERS
+    // ========================
+    document.addEventListener('DOMContentLoaded', () => {
+      const input = document.getElementById('oni-name');
+      const btnSummon = document.getElementById('btn-summon');
+
+      input.addEventListener('input', () => {
+        btnSummon.disabled = !input.value.trim();
+      });
+
+      input.addEventListener('keydown', (e) => {
+        if (e.key === 'Enter' && input.value.trim()) {
+          summonOni();
+        }
+      });
+
+      btnSummon.addEventListener('click', summonOni);
+      document.getElementById('btn-throw').addEventListener('click', startThrow);
+      document.getElementById('btn-retry').addEventListener('click', () => {
+        document.getElementById('oni-name').value = '';
+        document.getElementById('btn-summon').disabled = true;
+        showScreen('screen-input');
+      });
+      document.getElementById('btn-save-image').addEventListener('click', downloadShareImage);
+
+      // Suggestion buttons
+      document.querySelectorAll('.suggest-btn').forEach(btn => {
+        btn.addEventListener('click', () => {
+          input.value = btn.dataset.name;
+          btnSummon.disabled = false;
+          input.focus();
+        });
+      });
+    });
+  </script>
+</body>
+</html>
